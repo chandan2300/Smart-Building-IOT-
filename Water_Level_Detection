@@ -19,7 +19,7 @@ void setup()
 {
   // Debug console
   Serial.begin(9600);
-pinMode(TRIGGERPIN, OUTPUT);
+  pinMode(TRIGGERPIN, OUTPUT);
   pinMode(ECHOPIN, INPUT);
   Blynk.begin(auth, ssid, pass);
   // You can also specify server:
@@ -34,8 +34,6 @@ pinMode(TRIGGERPIN, OUTPUT);
 
 void loop()
 {
-  lcd.clear();
-  lcd.print(0, 0, "Distance in cm"); // use: (position X: 0-15, position Y: 0-1, "Message you want to print")
   long duration, distance;
   digitalWrite(TRIGGERPIN, LOW);  
   delayMicroseconds(3);
@@ -46,9 +44,29 @@ void loop()
   digitalWrite(TRIGGERPIN, LOW);
   duration = pulseIn(ECHOPIN, HIGH);
   distance = (duration/2) / 29.1;
-  Serial.print(distance);
-  Serial.println("Cm");
-  lcd.print(7, 1, distance);
+  if(distance >14  )  // depending on the tank parameters change these values,"25"
+  {
+  //Blynk.virtualWrite(V_o,1023); // Low LED is ON
+  //Blynk.virtualWrite(V_t,0);    // High LED is OFF  
+  Blynk.notify("Tank is almost empty"); // You get a notification when tank is Empty
+  Serial.println("Tank is almost empty");
+  }
+  else if (distance <3 ) //
+  {
+  //Blynk.virtualWrite(V_t,1023); // High LED is ON
+  //Blynk.virtualWrite(V_o,0);    // Low LED is OFF  
+  Blynk.notify("Tank is almost full"); // You get a notification when tank is Full
+  Serial.println("Tank is almost full");
+  }
+  Serial.println(distance);
+
+  Blynk.virtualWrite(V8,distance); // Write depth of water to App
+
+  Serial.println("distance written");
+
+
+
+
   Blynk.run();
 
   delay(3500);
